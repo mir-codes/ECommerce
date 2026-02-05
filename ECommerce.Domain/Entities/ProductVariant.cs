@@ -1,17 +1,19 @@
-﻿namespace ECommerce.Domain.Entities
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace ECommerce.Domain.Entities
 {
     public class ProductVariant : BaseEntity
     {
         public int ProductId { get; set; }
+        public string Sku { get; set; }
+        public string Color { get; set; }
+        public string Size { get; set; }
 
-        public Product? Product { get; set; }
+        [Column(TypeName = "money")]
+        public decimal PriceDelta { get; set; }
 
-        public string VariantName { get; set; } = string.Empty;
+        public int InventoryQuantity { get; set; }
 
-        public string? VariantSku { get; set; }
-
-        public decimal? PriceOverride { get; set; }
-
-        public ProductInventory Inventory { get; set; } = new();
+        public Product Product { get; set; }
     }
 }

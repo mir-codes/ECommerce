@@ -4,16 +4,13 @@ namespace ECommerce.Domain.Entities
 {
     public class Customer : BaseEntity
     {
-        public string CustomerName { get; set; } = string.Empty;
-        public string? ContactName { get; set; }
-        public string? ContactTitle { get; set; }
-        public string Email { get; set; } = string.Empty;
-        public string PasswordHash { get; set; } = string.Empty;
-        public string? Phone { get; set; }
-        public string? Fax { get; set; }
+        public string UserId { get; set; }
+        public string Email { get; set; }
+        public string PhoneNumber { get; set; }
 
-        public List<Address> Addresses { get; set; } = new();
-
-        public List<Order> Orders { get; set; } = new();
+        public ICollection<Address> Addresses { get; set; } = new List<Address>();
+        public ICollection<Order> Orders { get; set; } = new List<Order>();
+        public ICollection<WishlistItem> WishlistItems { get; set; } = new List<WishlistItem>();
+        public ICollection<RecentlyViewedItem> RecentlyViewedItems { get; set; } = new List<RecentlyViewedItem>();
     }
 }

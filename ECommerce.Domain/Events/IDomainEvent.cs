@@ -1,7 +1,9 @@
-﻿namespace ECommerce.Domain.Events
+﻿using System;
+
+namespace ECommerce.Domain.Events
 {
     public interface IDomainEvent
     {
-        DateTime OccurredAtUtc { get; }
+        DateTimeOffset OccurredOn { get; }
     }
 }

@@ -1,29 +1,37 @@
-using ECommerce.Domain.Entities;
+using System.Threading.Tasks;
 using ECommerce.Persistence;
 using ECommerce.Service;
-using NUnit.Framework;
-using System.Linq;
+using ECommerce.Service.Models;
+using Microsoft.EntityFrameworkCore;
+using Xunit;
 
 namespace ECommerce.Test.Unit
 {
     public class ProductServiceTests
     {
-        private IProductRepository _repo;
-        private IProductService _service;
-
-        [SetUp]
-        public void Setup()
+        [Fact]
+        public async Task AddProduct_ShouldIncreaseCount()
         {
-            _repo = new ProductRepository();
-            _service = new ProductService(_repo);
-        }
+            var options = new DbContextOptionsBuilder<ECommerceDbContext>()
+                .UseInMemoryDatabase(databaseName: $"ProductServiceTests_{System.Guid.NewGuid()}")
+                .Options;
 
-        [Test]
-        public void AddProduct_ShouldIncreaseCount()
-        {
-            var product = new Product { Id = 1, ProductName = "Test", UnitPrice = 10 };
-            _service.Add(product);
-            Assert.AreEqual(1, _service.GetAll().Count());
+            await using var dbContext = new ECommerceDbContext(options);
+            var repo = new ProductRepository(dbContext);
+            var unitOfWork = new UnitOfWork(dbContext);
+            var service = new ProductService(repo, unitOfWork);
+
+            var id = await service.AddAsync(new CreateProductRequest
+            {
+                ProductName = "Test",
+                Sku = "SKU-TEST",
+                UnitPrice = 10,
+                CategoryId = 1
+            });
+
+            var result = await service.GetByIdAsync(id);
+            Assert.NotNull(result);
+            Assert.Equal("Test", result.ProductName);
         }
     }
 }

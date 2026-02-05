@@ -6,10 +6,10 @@ namespace ECommerce.Test.Unit
     public class EmailServiceTests
     {
         [Fact]
-        public void SendEmail_DoesNotThrow()
+        public async System.Threading.Tasks.Task SendEmail_DoesNotThrow()
         {
             var service = new EmailService();
-            var ex = Record.Exception(() => service.SendEmail("to@test.com", "subject", "body"));
+            var ex = await Record.ExceptionAsync(() => service.SendEmailAsync("to@test.com", "subject", "body"));
             Assert.Null(ex);
         }
     }
