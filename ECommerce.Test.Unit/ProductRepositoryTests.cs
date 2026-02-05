@@ -1,59 +1,95 @@
+using System.Threading.Tasks;
 using ECommerce.Domain.Entities;
 using ECommerce.Persistence;
+using Microsoft.EntityFrameworkCore;
 using Xunit;
-using System.Linq;
 
 namespace ECommerce.Test.Unit
 {
     public class ProductRepositoryTests
     {
-        private IProductRepository _repo = new ProductRepository();
-
-        [Fact]
-        public void AddProduct_ShouldIncreaseCount()
+        private static ECommerceDbContext CreateDbContext()
         {
-            var product = new Product { Id = 1, ProductName = "Test", UnitPrice = 10 };
-            _repo.Add(product);
-            Assert.Equal(1, _repo.GetAll().Count());
+            var options = new DbContextOptionsBuilder<ECommerceDbContext>()
+                .UseInMemoryDatabase(databaseName: $"ProductRepoTests_{System.Guid.NewGuid()}")
+                .Options;
+
+            return new ECommerceDbContext(options);
         }
 
         [Fact]
-        public void GetById_ReturnsProduct_WhenExists()
+        public async Task AddProduct_ShouldIncreaseCount()
         {
-            var product = new Product { Id = 2, ProductName = "Test2", UnitPrice = 20 };
-            _repo.Add(product);
-            var result = _repo.GetById(2);
+            await using var dbContext = CreateDbContext();
+            var repo = new ProductRepository(dbContext);
+
+            var product = new Product { ProductName = "Test", UnitPrice = 10, Sku = "SKU-1" };
+            await repo.AddAsync(product);
+            await dbContext.SaveChangesAsync();
+
+            var items = await repo.ListAsync();
+            Assert.Single(items);
+        }
+
+        [Fact]
+        public async Task GetById_ReturnsProduct_WhenExists()
+        {
+            await using var dbContext = CreateDbContext();
+            var repo = new ProductRepository(dbContext);
+
+            var product = new Product { ProductName = "Test2", UnitPrice = 20, Sku = "SKU-2" };
+            await repo.AddAsync(product);
+            await dbContext.SaveChangesAsync();
+
+            var result = await repo.GetByIdAsync(product.Id);
             Assert.NotNull(result);
             Assert.Equal("Test2", result.ProductName);
         }
 
         [Fact]
-        public void GetById_ReturnsNull_WhenNotExists()
+        public async Task GetById_ReturnsNull_WhenNotExists()
         {
-            var result = _repo.GetById(999);
+            await using var dbContext = CreateDbContext();
+            var repo = new ProductRepository(dbContext);
+
+            var result = await repo.GetByIdAsync(999);
             Assert.Null(result);
         }
 
         [Fact]
-        public void UpdateProduct_ChangesValues()
+        public async Task UpdateProduct_ChangesValues()
         {
-            var product = new Product { Id = 3, ProductName = "Old", UnitPrice = 5 };
-            _repo.Add(product);
+            await using var dbContext = CreateDbContext();
+            var repo = new ProductRepository(dbContext);
+
+            var product = new Product { ProductName = "Old", UnitPrice = 5, Sku = "SKU-3" };
+            await repo.AddAsync(product);
+            await dbContext.SaveChangesAsync();
+
             product.ProductName = "New";
             product.UnitPrice = 15;
-            _repo.Update(product);
-            var updated = _repo.GetById(3);
+            repo.Update(product);
+            await dbContext.SaveChangesAsync();
+
+            var updated = await repo.GetByIdAsync(product.Id);
             Assert.Equal("New", updated.ProductName);
             Assert.Equal(15, updated.UnitPrice);
         }
 
         [Fact]
-        public void DeleteProduct_RemovesProduct()
+        public async Task DeleteProduct_RemovesProduct()
         {
-            var product = new Product { Id = 4, ProductName = "DeleteMe", UnitPrice = 1 };
-            _repo.Add(product);
-            _repo.Delete(4);
-            Assert.Null(_repo.GetById(4));
+            await using var dbContext = CreateDbContext();
+            var repo = new ProductRepository(dbContext);
+
+            var product = new Product { ProductName = "DeleteMe", UnitPrice = 1, Sku = "SKU-4" };
+            await repo.AddAsync(product);
+            await dbContext.SaveChangesAsync();
+
+            repo.Remove(product);
+            await dbContext.SaveChangesAsync();
+
+            Assert.Null(await repo.GetByIdAsync(product.Id));
         }
     }
 }

@@ -1,8 +1,10 @@
-using ECommerce.Domain.Entities;
 using ECommerce.Service;
+using ECommerce.Service.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace ECommerce.API.Controllers
 {
@@ -18,39 +20,43 @@ namespace ECommerce.API.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<Product>> GetAll()
+        public async Task<ActionResult<PagedResult<ProductListItemDto>>> GetAll(
+            [FromQuery] string keyword,
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 20,
+            CancellationToken cancellationToken = default)
         {
-            var products = _productService.GetAll();
+            var products = await _productService.GetAllAsync(keyword, page, pageSize, cancellationToken);
             return Ok(products);
         }
 
         [HttpGet("{id}")]
-        public ActionResult<Product> GetById(int id)
+        public async Task<ActionResult<ProductDetailDto>> GetById(int id, CancellationToken cancellationToken = default)
         {
-            var product = _productService.GetById(id);
+            var product = await _productService.GetByIdAsync(id, cancellationToken);
             if (product == null) return NotFound();
             return Ok(product);
         }
 
         [HttpPost]
-        public IActionResult Add(Product product)
+        public async Task<IActionResult> Add(CreateProductRequest request, CancellationToken cancellationToken = default)
         {
-            _productService.Add(product);
-            return CreatedAtAction(nameof(GetById), new { id = product.Id }, product);
+            var id = await _productService.AddAsync(request, cancellationToken);
+            return CreatedAtAction(nameof(GetById), new { id }, request);
         }
 
         [HttpPut("{id}")]
-        public IActionResult Update(int id, Product product)
+        public async Task<IActionResult> Update(int id, UpdateProductRequest request, CancellationToken cancellationToken = default)
         {
-            if (id != product.Id) return BadRequest();
-            _productService.Update(product);
+            if (id != request.Id) return BadRequest();
+            await _productService.UpdateAsync(request, cancellationToken);
             return NoContent();
         }
 
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken = default)
         {
-            _productService.Delete(id);
+            await _productService.DeleteAsync(id, cancellationToken);
             return NoContent();
         }
     }
