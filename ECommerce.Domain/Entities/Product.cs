@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
+using ECommerce.Domain.ValueObjects;
 
 namespace ECommerce.Domain.Entities
 {

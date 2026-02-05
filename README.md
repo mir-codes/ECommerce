@@ -26,6 +26,10 @@ ECommerce Website with .NET 6 and React.Js. Using Onion Architecture and WebApi
 - **Infrastructure**: External services (email, JWT, etc.)
 - **Test.Unit**: Unit tests
 - **Test.Integration**: Integration tests
+- **docs**: Architecture guide and implementation notes
+
+## Architecture Guide
+See [docs/Architecture.md](docs/Architecture.md) for the Onion Architecture breakdown, sample flows, and frontend organization.
 
 ```
 ECommerce.API
