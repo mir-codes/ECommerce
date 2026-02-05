@@ -1,29 +1,58 @@
 using ECommerce.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Threading.Tasks;
 
 namespace ECommerce.Persistence
 {
     public class ProductRepository : IProductRepository
     {
-        private static List<Product> _products = new List<Product>();
-        public IEnumerable<Product> GetAll() => _products;
-        public Product GetById(int id) => _products.FirstOrDefault(p => p.Id == id);
-        public void Add(Product product) => _products.Add(product);
-        public void Update(Product product)
+        private readonly ApplicationDbContext _context;
+
+        public ProductRepository(ApplicationDbContext context)
         {
-            var existing = GetById(product.Id);
-            if (existing != null)
-            {
-                existing.ProductName = product.ProductName;
-                existing.UnitPrice = product.UnitPrice;
-            }
+            _context = context;
         }
-        public void Delete(int id)
+
+        public Task<List<Product>> GetAllAsync() =>
+            _context.Products
+                .Include(product => product.Category)
+                .Include(product => product.Images)
+                .Include(product => product.Variants)
+                .ToListAsync();
+
+        public Task<Product?> GetByIdAsync(int id) =>
+            _context.Products
+                .Include(product => product.Category)
+                .Include(product => product.Images)
+                .Include(product => product.Variants)
+                .FirstOrDefaultAsync(product => product.Id == id && !product.IsDeleted);
+
+        public async Task AddAsync(Product product)
         {
-            var product = GetById(id);
-            if (product != null)
-                _products.Remove(product);
+            _context.Products.Add(product);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task UpdateAsync(Product product)
+        {
+            product.UpdatedAt = DateTime.UtcNow;
+            _context.Products.Update(product);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteAsync(int id)
+        {
+            var product = await GetByIdAsync(id);
+            if (product == null)
+            {
+                return;
+            }
+
+            product.IsDeleted = true;
+            product.UpdatedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
         }
     }
 }

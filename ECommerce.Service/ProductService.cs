@@ -1,6 +1,7 @@
 using ECommerce.Domain.Entities;
 using ECommerce.Persistence;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace ECommerce.Service
 {
@@ -11,10 +12,14 @@ namespace ECommerce.Service
         {
             _productRepository = productRepository;
         }
-        public IEnumerable<Product> GetAll() => _productRepository.GetAll();
-        public Product GetById(int id) => _productRepository.GetById(id);
-        public void Add(Product product) => _productRepository.Add(product);
-        public void Update(Product product) => _productRepository.Update(product);
-        public void Delete(int id) => _productRepository.Delete(id);
+        public Task<List<Product>> GetAllAsync() => _productRepository.GetAllAsync();
+
+        public Task<Product?> GetByIdAsync(int id) => _productRepository.GetByIdAsync(id);
+
+        public Task AddAsync(Product product) => _productRepository.AddAsync(product);
+
+        public Task UpdateAsync(Product product) => _productRepository.UpdateAsync(product);
+
+        public Task DeleteAsync(int id) => _productRepository.DeleteAsync(id);
     }
 }

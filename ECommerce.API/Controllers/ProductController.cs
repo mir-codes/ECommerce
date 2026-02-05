@@ -3,6 +3,7 @@ using ECommerce.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace ECommerce.API.Controllers
 {
@@ -18,39 +19,39 @@ namespace ECommerce.API.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<Product>> GetAll()
+        public async Task<ActionResult<IEnumerable<Product>>> GetAll()
         {
-            var products = _productService.GetAll();
+            var products = await _productService.GetAllAsync();
             return Ok(products);
         }
 
         [HttpGet("{id}")]
-        public ActionResult<Product> GetById(int id)
+        public async Task<ActionResult<Product>> GetById(int id)
         {
-            var product = _productService.GetById(id);
+            var product = await _productService.GetByIdAsync(id);
             if (product == null) return NotFound();
             return Ok(product);
         }
 
         [HttpPost]
-        public IActionResult Add(Product product)
+        public async Task<IActionResult> Add(Product product)
         {
-            _productService.Add(product);
+            await _productService.AddAsync(product);
             return CreatedAtAction(nameof(GetById), new { id = product.Id }, product);
         }
 
         [HttpPut("{id}")]
-        public IActionResult Update(int id, Product product)
+        public async Task<IActionResult> Update(int id, Product product)
         {
             if (id != product.Id) return BadRequest();
-            _productService.Update(product);
+            await _productService.UpdateAsync(product);
             return NoContent();
         }
 
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            _productService.Delete(id);
+            await _productService.DeleteAsync(id);
             return NoContent();
         }
     }
