@@ -1,14 +1,16 @@
-using ECommerce.Domain.Entities;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using ECommerce.Domain.Entities;
 
 namespace ECommerce.Persistence
 {
     public interface IProductRepository
     {
-        IEnumerable<Product> GetAll();
-        Product GetById(int id);
-        void Add(Product product);
-        void Update(Product product);
-        void Delete(int id);
+        Task<IReadOnlyList<Product>> GetAllAsync(CancellationToken cancellationToken);
+        Task<Product> GetByIdAsync(int id, CancellationToken cancellationToken);
+        Task AddAsync(Product product, CancellationToken cancellationToken);
+        Task UpdateAsync(Product product, CancellationToken cancellationToken);
+        Task SoftDeleteAsync(int id, CancellationToken cancellationToken);
     }
 }

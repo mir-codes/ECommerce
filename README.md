@@ -1,13 +1,15 @@
 # ECommerce
 
-ECommerce Website with .NET 6 and React.Js. Using Onion Architecture and WebApi
+Production-ready E-Commerce platform built with .NET 6 (Web API) and React, following Onion Architecture.
 
 ## Features
-- Product, Order, Customer, Supplier management
-- JWT Authentication
-- Email notifications
-- RESTful API
-- Unit and Integration Tests
+- Product management with categories, variants, inventory, soft deletes, and images
+- Customer profiles, address book, order history, wishlist, and recently viewed products
+- Supplier onboarding and supplier-product mapping
+- Order lifecycle with checkout and payment intent handling
+- JWT authentication, role-based authorization, and correlation IDs
+- Background email notifications (non-blocking)
+- Caching, pagination readiness, and health checks
 
 ## Getting Started
 1. Clone the repository
@@ -16,13 +18,21 @@ ECommerce Website with .NET 6 and React.Js. Using Onion Architecture and WebApi
 4. Access Swagger UI at `/swagger`
 
 ## Project Structure
-- **API**: ASP.NET Core Web API
-- **Domain**: Entity and value objects
-- **Service**: Business logic
-- **Persistence**: Data access
-- **Infrastructure**: External services (email, JWT, etc.)
-- **Test.Unit**: Unit tests
-- **Test.Integration**: Integration tests
+```
+ECommerce.API/            # ASP.NET Core Web API (controllers, middleware, background services)
+ECommerce.Domain/         # Entities, value objects, enums, auth models
+ECommerce.Service/        # Application services, DTOs, payment abstractions
+ECommerce.Persistence/    # EF Core DbContext + repositories
+ECommerce.Infrastructure/ # External services (email, JWT, Stripe)
+ECommerce.Frontend/       # React app (features-based structure)
+ECommerce.Test.Unit/      # Unit tests
+ECommerce.Test.Integration/# Integration tests
+```
+
+## Architectural Notes
+- Onion Architecture keeps Domain isolated; Service depends on Domain and Persistence.
+- Infrastructure implements Service abstractions (e.g., payment gateway).
+- API layer composes everything with DI, middleware, and versioned routes.
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first.
